@@ -19,7 +19,7 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
   renderer.setClearColor(0xffffff, 1);
 
   const camera = new PerspectiveCamera(50, width / height, 0.1, 1000);
-  camera.position.set(1, 2, 3);
+  camera.position.set(0, 0.0, 0.3);
   camera.lookAt(0, 0, 0);
 
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -35,23 +35,45 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
     time: { value: 0.0 },
   };
 
+const getMaterial = (level: any) => {
+    let material = new ShaderMaterial({
+      transparent: true,
+      side: THREE.DoubleSide,
+      vertexShader: vert,
+      fragmentShader: frag,
+      uniforms: {
+        time: {
+          value: 0.0
+        },
+        uLevel: {
+          value: level
+        }
+      }
+      
+    })
+    return material;
+  }
 
-  const material = new ShaderMaterial({
-    transparent: true,
-    vertexShader: vert,
-    fragmentShader: frag,
-    uniforms,
-  });
-  const mesh = new Mesh(geometry, material);
-  scene.add(mesh);
+  // const material = new ShaderMaterial({
+  //   transparent: true,
+  //   vertexShader: vert,
+  //   fragmentShader: frag,
+  //   uniforms,
+  // });
 
-  let number = 50
+  // const mesh = new Mesh(geometry, mat);
+  // scene.add(mesh);
+
+  let number = 90
   let meshes = []
+  let materials = []
 
   for (let i: any = 0 ; i < number; i++) {
-    let mesh = new THREE.Mesh(geometry, material)
+    let mat = getMaterial(i/50);
+    let mesh = new THREE.Mesh(geometry, mat)
     mesh.position.z = -i * 0.1;
     meshes.push(mesh)
+    materials.push(mat)
     scene.add(mesh)
   }
 

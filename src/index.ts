@@ -5,6 +5,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "three/examples/jsm/libs/stats.module";
 import vert from "./shaders/vert.glsl";
 import frag from "./shaders/frag.glsl";
+import * as THREE from 'three'
 
 const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
   if (import.meta.hot) {
@@ -28,17 +29,31 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
 
   const scene = new Scene();
 
-  const geometry = new BoxGeometry(1, 1, 1);
+  const geometry = new THREE.PlaneGeometry(2, 2);
+  
   const uniforms = {
     time: { value: 0.0 },
   };
+
+
   const material = new ShaderMaterial({
+    transparent: true,
     vertexShader: vert,
     fragmentShader: frag,
     uniforms,
   });
   const mesh = new Mesh(geometry, material);
   scene.add(mesh);
+
+  let number = 50
+  let meshes = []
+
+  for (let i: any = 0 ; i < number; i++) {
+    let mesh = new THREE.Mesh(geometry, material)
+    mesh.position.z = -i * 0.1;
+    meshes.push(mesh)
+    scene.add(mesh)
+  }
 
   wrap.render = ({ playhead }: WebGLProps) => {
     uniforms["time"].value = playhead * Math.PI * 2;

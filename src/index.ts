@@ -13,6 +13,9 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
     import.meta.hot.accept(() => wrap.hotReload());
   }
 
+  let target = new THREE.Vector2(0, 0);
+
+
   const renderer = new WebGLRenderer({ canvas });
   renderer.setSize(width, height);
   renderer.setPixelRatio(pixelRatio);
@@ -22,7 +25,7 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
   camera.position.set(0, 0.0, 0.0);
   camera.lookAt(0, 0, -100);
 
-/*   const controls = new OrbitControls(camera, renderer.domElement); */
+  /*   const controls = new OrbitControls(camera, renderer.domElement); */
 
   const stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -30,10 +33,6 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
   const scene = new Scene();
 
   const geometry = new THREE.PlaneGeometry(2, 2);
-
-  const uniforms = {
-    time: { value: 0.0 },
-  };
 
   const getMaterial = (level: any) => {
     let material = new ShaderMaterial({
@@ -54,15 +53,6 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
     return material;
   }
 
-  // const material = new ShaderMaterial({
-  //   transparent: true,
-  //   vertexShader: vert,
-  //   fragmentShader: frag,
-  //   uniforms,
-  // });
-
-  // const mesh = new Mesh(geometry, mat);
-  // scene.add(mesh);
 
   let number: number = 90
   let meshes: any[] = []
@@ -78,12 +68,19 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
   }
 
   wrap.render = ({ playhead }: WebGLProps) => {
-
+    //sync animations in global time
+    playhead = (Date.now() / 10000) % 1
     camera.position.z = -playhead * 6
     materials.forEach((mat: any, i) => {
       mat.uniforms.time.value = playhead
     })
     /* controls.update(); */
+
+    target.lerp(new THREE.Vector2(window.screenLeft, window.screenTop), 0.1)
+
+    //set multi window camera coordinates (Res)
+    camera.setViewOffset(window.screen.width, window.screen.height, target.x, target.y, window.innerWidth, window.innerHeight)
+
     stats.update();
     renderer.render(scene, camera);
   };
@@ -102,7 +99,6 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
 
 const settings: SketchSettings = {
   mode: "webgl2",
-  // dimensions: [800, 800],
   pixelRatio: window.devicePixelRatio,
   animate: true,
   duration: 9_000,

@@ -144,7 +144,7 @@ float nnn = cnoise(vec3(uv*10., time*6.));
 float scene = mix(
     sdCircle(uv, 0.2),
     sdBox(uv, vec2(0.2)),
-    1.1*(sin(uLevel*PI*2.)+1.)
+    5.1*(sin(uLevel*PI*2.)+1.)
   ) + nnn*0.1;
 
 

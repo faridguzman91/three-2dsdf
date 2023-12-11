@@ -16,13 +16,13 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
   const renderer = new WebGLRenderer({ canvas });
   renderer.setSize(width, height);
   renderer.setPixelRatio(pixelRatio);
-  renderer.setClearColor(0xffffff, 1);
+  renderer.setClearColor(0x000000, 1);
 
   const camera = new PerspectiveCamera(50, width / height, 0.1, 1000);
-  camera.position.set(0, 0.0, 0.3);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(0, 0.0, 0.0);
+  camera.lookAt(0, 0, -100);
 
-  const controls = new OrbitControls(camera, renderer.domElement);
+/*   const controls = new OrbitControls(camera, renderer.domElement); */
 
   const stats = new Stats();
   document.body.appendChild(stats.dom);
@@ -30,12 +30,12 @@ const sketch = ({ wrap, canvas, width, height, pixelRatio }: WebGLProps) => {
   const scene = new Scene();
 
   const geometry = new THREE.PlaneGeometry(2, 2);
-  
+
   const uniforms = {
     time: { value: 0.0 },
   };
 
-const getMaterial = (level: any) => {
+  const getMaterial = (level: any) => {
     let material = new ShaderMaterial({
       transparent: true,
       side: THREE.DoubleSide,
@@ -49,7 +49,7 @@ const getMaterial = (level: any) => {
           value: level
         }
       }
-      
+
     })
     return material;
   }
@@ -64,12 +64,12 @@ const getMaterial = (level: any) => {
   // const mesh = new Mesh(geometry, mat);
   // scene.add(mesh);
 
-  let number = 90
-  let meshes = []
-  let materials = []
+  let number: number = 90
+  let meshes: any[] = []
+  let materials: any[] = []
 
-  for (let i: any = 0 ; i < number; i++) {
-    let mat = getMaterial(i/50);
+  for (let i: any = 0; i < number; i++) {
+    let mat = getMaterial(i / 50);
     let mesh = new THREE.Mesh(geometry, mat)
     mesh.position.z = -i * 0.1;
     meshes.push(mesh)
@@ -78,9 +78,12 @@ const getMaterial = (level: any) => {
   }
 
   wrap.render = ({ playhead }: WebGLProps) => {
-    uniforms["time"].value = playhead * Math.PI * 2;
 
-    controls.update();
+    camera.position.z = -playhead * 6
+    materials.forEach((mat: any, i) => {
+      mat.uniforms.time.value = playhead
+    })
+    /* controls.update(); */
     stats.update();
     renderer.render(scene, camera);
   };
@@ -102,10 +105,10 @@ const settings: SketchSettings = {
   // dimensions: [800, 800],
   pixelRatio: window.devicePixelRatio,
   animate: true,
-  duration: 6_000,
+  duration: 9_000,
   playFps: 60,
   exportFps: 60,
-  framesFormat: ["webm"],
+  framesFormat: ["mp4"],
   attributes: {
     preserveDrawingBuffer: true,
   },
